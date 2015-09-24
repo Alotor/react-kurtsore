@@ -1,5 +1,7 @@
 var _ = require("lodash"),
-    k = require("kurtsore");
+    k = require("kurtsore"),
+    Immutable = require("immutable");
+;
 
 // ================================================================================
 // Mixins
@@ -21,7 +23,7 @@ var CursorPropsMixin = {
         }
 
         // Have the mutable props changed?
-        if (isDifferent(mutableCurrentProps, mutableNextProps)){
+        if (isDifferent(mutableCurrentProps, mutableNextProps, equalsCustomizer)){
             return true;
         }
 
@@ -74,6 +76,16 @@ function cursorShouldUpdate(cursors){
         newC = cursors[1];
     return !oldC.hasSameSnapshot(newC);
 };
+
+function equalsCustomizer(val1, val2) {
+    if (Immutable.Iterable.isIterable(val1) && Immutable.Iterable.isIterable(val2)) {
+        return Immutable.is(val1, val2);
+    } else if (Immutable.Iterable.isIterable(val1) || Immutable.Iterable.isIterable(val2)) {
+        return false;
+    } else {
+        return undefined;
+    }
+}
 
 // ================================================================================
 //  Public API
